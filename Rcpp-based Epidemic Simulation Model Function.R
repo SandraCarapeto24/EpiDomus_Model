@@ -24,9 +24,6 @@ library("Rcpp")
 library("tidyverse")
 library("dplyr")
 
-
-
-
 run_rcpp_model <- function(
     run_type = "deterministic", # Select - to run deterministic or stochastic.
     beta_clinical, # Transmission Rate
