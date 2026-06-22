@@ -65,11 +65,11 @@ If you use this model in academic work, please cite:
   author = {Carapeto, Sandra and Denwood, Matt and Boklund, Anette and Kjær, Lene and Kirkeby, Carsten},
   title = {EpiDomus Model},
   year = {2026},
-  url = {https://github.com/SandraCarapeto24/EpiDomus_Model}
+  url = {[https://github.com/SandraCarapeto24/EpiDomus_Model](https://github.com/SandraCarapeto24/EpiDomus_Model)} 
 }
 
 Or cite the repository directly:
 Custom Rcpp epidemic simulation model, available at:
-https://github.com/SandraCarapeto24/EpiDomus_Model
+[https://github.com/SandraCarapeto24/EpiDomus_Model](https://github.com/SandraCarapeto24/EpiDomus_Model)
 
 
