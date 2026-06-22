@@ -133,3 +133,5 @@ outputdf <- bind_rows(pre, post) |>
 
   return(outputdf)
 }
+#Example
+run_rcpp_model(beta_clinical = 2, contact_power = 0,initial_exposed_animals = 1, d_time = (1/(24*60)), save_results = TRUE, n_per_day=1)
