@@ -5,23 +5,43 @@
 # implemented using Rcpp for fast group-based simulation.
 #
 # Repository: https://github.com/SandraCarapeto24/EpiDomusModel
-# ---------------------------------------------------------
+# --------------------------------------------------------- 
+
+install.packages(
+  'blofeld',
+  repos = c(CRAN = "https://cran.rstudio.com/",
+            "ku-awdc" = "https://ku-awdc.github.io/drat/")
+)
+
+install.packages(c(
+  "Rcpp",
+  "tidyverse",
+  "dplyr"
+))
+
+library("blofeld")
+library("Rcpp")
+library("tidyverse")
+library("dplyr")
+
+
+
 
 run_rcpp_model <- function(
-  run_type = "deterministic", # Select - to run deterministic or stochastic.
-  beta_clinical, # Transmission Rate
-  contact_power, #Transmission Function used - Frequency-dependent, Density-dependent and Sublinear function
-  initial_exposed_animals, #At the moment of introduction
-  mortality_I = 0.61, #Disease-induced mortality
-  d_time, #internal time step
-  save_results = TRUE,
-  save_prefix = NULL,
-  n_per_day = 1 #data extraction 1 => one per day
+    run_type = "deterministic", # Select - to run deterministic or stochastic.
+    beta_clinical, # Transmission Rate
+    contact_power, #Transmission Function used - Frequency-dependent, Density-dependent and Sublinear function
+    initial_exposed_animals, #At the moment of introduction
+    mortality_I = 0.61, #Disease-induced mortality
+    d_time, #internal time step
+    save_results = TRUE,
+    save_prefix = NULL,
+    n_per_day = 1 #data extraction 1 => one per day
 ) {
   stopifnot(d_time > 0)
-
+  
   if (length(find("Group")) == 0) sourceCpp("testRcppnew.cpp") #Rcpp file needed to run the model, where the subcompartments are typed
-
+  
   if (run_type == "deterministic") {
     Group <- DeterministicGroup
     Pop   <- DeterministicPop
@@ -31,19 +51,19 @@ run_rcpp_model <- function(
   } else {
     stop("Unknown run_type. Use 'deterministic' or 'stochastic'.")
   }
-
+  
   transmission_type <- c(
     "0"   = "Density-Dependent Transmission",
     "0.5" = "Sublinear Transmission",
     "1"   = "Frequency-Dependent Transmission"
   )
-
+  
   if (!as.character(contact_power) %in% names(transmission_type)) {
     stop("contact_power must be 0, 0.5, or 1.")
   }
-
+  
   transmission_type_name <- transmission_type[as.character(contact_power)]
-
+  
   pars <- list(
     beta_subclin = 0,
     beta_clinical = beta_clinical,
@@ -62,7 +82,7 @@ run_rcpp_model <- function(
     death = 0.00086, #background mortality rate applied in all comparmtents except D compartment
     d_time = d_time
   )
-
+  
   gps <- list(
     new(Group) |> (\(g) {
       g$set_parameters(pars)
@@ -70,9 +90,9 @@ run_rcpp_model <- function(
       g
     })()
   )
-
+  
   pop <- new(Pop, gps)
-
+  
   # PRE-EXPOSURE PERIOD
   as.list(1:(50 * n_per_day)) |> #I can change the day of exposure here! Now it is day 50!
     map(\(x){
@@ -101,11 +121,11 @@ run_rcpp_model <- function(
     }) |>
     bind_rows() -> post
   
-outputdf <- bind_rows(pre, post) |>
+  outputdf <- bind_rows(pre, post) |>
     rename(D = M) |> # Just change to keep D as death to due the disease!
     select(-Group) |>
     mutate(transmission_type = transmission_type_name, d_time=d_time)
-
+  
   # --------------------
   # SAVE RESULTS (optional)
   # --------------------
@@ -122,15 +142,15 @@ outputdf <- bind_rows(pre, post) |>
     } else {
       save_prefix
     }
-
+    
     df_file <- paste0(prefix, "_output.xlsx")
     writexl::write_xlsx(outputdf, df_file)
-
+    
     assign(paste0(prefix, "_df"), outputdf, envir = .GlobalEnv)
-
+    
     message("Saved data to: ", df_file)
   }
-
+  
   return(outputdf)
 }
 #Example
