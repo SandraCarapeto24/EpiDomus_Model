@@ -50,10 +50,7 @@ install.packages(
 install.packages(c(
   "Rcpp",
   "tidyverse",
-  "dplyr",
-  "purrr",
-  "tidyr",
-  "patchwork"
+  "dplyr"
 ))
 ```
 
