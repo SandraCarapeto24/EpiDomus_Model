@@ -123,9 +123,9 @@ run_rcpp_model <- function(
     select(-Group) |>
     mutate(transmission_type = transmission_type_name, d_time=d_time)
   
-  # --------------------
+
   # SAVE RESULTS (optional)
-  # --------------------
+
   if (save_results) {
     prefix <- if (is.null(save_prefix)) {
       paste0(
