@@ -56,13 +56,14 @@ install.packages(c(
   "tidyr",
   "patchwork"
 ))
+```
 
 ## Citation
 
 If you use this model in academic work, please cite:
 
-@software{SandraCarapeto242026EpiDomusModel,
-  author = {Carapeto, Sandra; Denwood, Matt; Boklund, Anette; Kjær, Lene; Kirkeby, Carsten},
+@software{carapeto2026epidomusmodel,
+  author = {Carapeto, Sandra and Denwood, Matt and Boklund, Anette and Kjær, Lene and Kirkeby, Carsten},
   title = {EpiDomus Model},
   year = {2026},
   url = {https://github.com/SandraCarapeto24/EpiDomusModel}
