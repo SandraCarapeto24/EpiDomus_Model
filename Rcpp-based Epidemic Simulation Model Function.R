@@ -29,7 +29,7 @@ run_rcpp_model <- function(
     beta_clinical, # Transmission Rate
     contact_power, #Transmission Function used - Frequency-dependent, Density-dependent and Sublinear function
     initial_exposed_animals, #At the moment of introduction
-    mortality_I = 0.61, #Disease-induced mortality
+    mortality_I = 0.34, #Disease-induced mortality
     d_time, #internal time step
     save_results = TRUE,
     save_prefix = NULL,
@@ -65,10 +65,10 @@ run_rcpp_model <- function(
     beta_subclin = 0,
     beta_clinical = beta_clinical,
     contact_power = contact_power,
-    incubation = 1, #latent period rate 
+    incubation = 1.09, #latent period rate 
     progression = 0,
     healing = 0,
-    recovery = 0.29, #recovery rate
+    recovery = 0.16, #recovery rate
     reversion = 0,
     waning = 0, 
     vaccination = 0,
@@ -90,8 +90,14 @@ run_rcpp_model <- function(
   
   pop <- new(Pop, gps)
   
+  #INITIAL 
+  
+  lapply(gps, \(g) g$get_state()) |>
+    bind_rows(.id = "Group")|>
+    bind_rows() -> initial
+  
   # PRE-EXPOSURE PERIOD
-  as.list(1:(50 * n_per_day)) |> #I can change the day of exposure here! Now it is day 50!
+  as.list(1:(exposure_day * n_per_day)) |> #change day of introduction
     map(\(x){
       
       pop$update(1/(n_per_day * d_time),1) # matrix update by minute
@@ -101,14 +107,18 @@ run_rcpp_model <- function(
     }) |>
     bind_rows() -> pre
   
-  # introduce exposure
+  # EXPOSURE
   cS <- gps[[1]]$get_state()$S
   stopifnot(cS > initial_exposed_animals)
   
   gps[[1]]$set_state(list(S = cS - initial_exposed_animals, E = initial_exposed_animals),FALSE)
   
+  lapply(gps, \(g) g$get_state()) |>
+    bind_rows(.id = "Group") |>
+    bind_rows() -> exposure
+  
   # POST-EXPOSURE PERIOD
-  as.list(1:(100 * n_per_day)) |>
+  as.list(1:((run_days_period - exposure_day) * n_per_day)) |>
     map(\(x){
       
       pop$update(1/(n_per_day * d_time), 1) # matrix update by minute
@@ -118,12 +128,13 @@ run_rcpp_model <- function(
     }) |>
     bind_rows() -> post
   
-  outputdf <- bind_rows(pre, post) |>
+  
+  outputdf <- bind_rows(initial, pre[-nrow(pre), ], exposure, post) |>  # Remove the pre-exposure state at the exposure day to avoid duplicating that time point
+    mutate(TimeStep = row_number() - 1) |>
     rename(D = M) |> # Just change to keep D as death to due the disease!
     select(-Group) |>
     mutate(transmission_type = transmission_type_name, d_time=d_time)
   
-
   # SAVE RESULTS (optional)
 
   if (save_results) {

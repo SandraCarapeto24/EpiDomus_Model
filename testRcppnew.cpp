@@ -2,8 +2,8 @@
  * Instructions:  change numE, numI, and/or numR below as needed
  * Note: this compiles both deterministic and stochastic models
  */
-constexpr int numE = 19;
-constexpr int numI = 3;
+constexpr int numE = 3;
+constexpr int numI = 1;
 constexpr int numR = 1;
 constexpr bool debug = true;
 
